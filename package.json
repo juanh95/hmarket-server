@@ -2,18 +2,21 @@
   "name": "nonamazon-server",
   "version": "1.0.0",
   "description": "internet software development course project",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "author": "",
+  "author": "Juan Hernandez",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.21.0",
     "body-parser": "^1.19.0",
+    "connect-mongo": "^3.2.0",
     "express": "^4.17.1",
-    "uuid": "^8.3.0",
-    "uuidv4": "^6.2.3"
+    "express-session": "^1.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.10.11"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
