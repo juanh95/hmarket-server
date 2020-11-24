@@ -10,8 +10,10 @@ var jwt = require('jsonwebtoken')
 
 var bodyParser = require('body-parser')
 var jsonParser = bodyParser.json()
+var cors = require('cors')
 
 app.use(express.json())
+app.use(cors())
 const router = express.Router()
 
 const UserModel = require('./models/User')
@@ -71,7 +73,7 @@ const initStoreItems = async() => {
     const items = [] 
 
     var i
-    var lim = 50  //the number of store items to be added to db, can be edited
+    var lim = 100  //the number of store items to be added to db, can be edited
     for(i = 0; i < lim; i++){
         var x = Math.floor(Math.random() * (465 - 1) + 1)
         var price = (Math.floor(Math.random() * (100 - 1) + 1) + 0.99)
@@ -271,7 +273,7 @@ router.get('/StoreItem', async(req, res) => {
     if(!req.query.itemName){ res.send(foundItems); return }
     let re = new RegExp(req.query.itemName)
     let results = foundItems.filter((storeItem) => re.test(storeItem.itemName))
-    res.send(`${results}`)
+    res.send(results)
 })
 
 // returns the 10 recently viewed items
