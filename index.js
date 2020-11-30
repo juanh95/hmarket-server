@@ -165,18 +165,21 @@ router.post('/user', jsonParser , async(req, res) => {
 })
 
 router.post('/user/login',async(req, res) => {
-    let foundUser = await UserModel.findOne({username: req.body.username})
-    if(foundUser.password != req.body.password){ res.send('Password did not match'); return }
+  let foundUser = await UserModel.findOne({username: req.body.username})
+  if(!foundUser){ res.status(401).send('Username not found'); return; }
+  if(foundUser.password != req.body.password){ res.status(401).send('Password did not match'); return }
 
-    if(!req.session.accessToken){
-        const accessToken = jwt.sign(JSON.stringify(foundUser), accessTokenSecret)
-        req.session.accessToken = accessToken
-        res.send(accessToken)
-        return
-    }
+  let foundCart = await CartModel.findOne({user: foundUser._id})
 
-    let decoded = await jwt.verify(req.session.accessToken, accessTokenSecret)
-    if(decoded){ res.send('User already logged in') }
+  if(!req.session.accessToken){
+    const accessToken = jwt.sign(JSON.stringify(foundUser), accessTokenSecret)
+    req.session.accessToken = accessToken
+    res.send({jwt: accessToken, userId: foundUser._id, cartId: foundCart._id})
+    return
+  }
+
+  let decoded = await jwt.verify(req.session.accessToken, accessTokenSecret)
+  if(decoded){ res.send('User already logged in') }
 })
 
 //returns user given an id 
@@ -194,17 +197,21 @@ router.get('/user/:UserId', authenticateJWT, async(req, res) => {
 })
 
 //returns users cart
-router.get('/user/:UserId/cart', authenticateJWT, async(req, res) => {
-    let foundCart = 0
+router.get('/user/:UserId/cart', async(req, res) => {
+  let foundCart = ''  
+  
+  try {
+    foundCart = await CartModel.findOne({user: mongoose.Types.ObjectId(req.params.UserId)}).populate('items')
+  } catch (error) {
+    console.log('something went wrong');
+    console.log(`[${req.params.UserId}] <- this is what I see`);
+    console.log(error);
+  }
+  // let foundCart = await CartModel.findOne({user: mongoose.Types.ObjectId(req.params.UserId)}).populate('items')
     
-    // if a user is not logged in, the cart of the user id provided will be returned
-    if(!req.body.username){ foundCart = await CartModel.findOne({user: req.params.UserId}).populate('items') }
-    // if a user is logged in return the logged in user's cart
-    else{ foundCart = await CartModel.findOne({user: req.body._id}).populate('items') }
-    
-    // validity checking that either cart was found
-    if(foundCart){ res.send(JSON.stringify(foundCart.items)); return }
-    else { res.send(`Cart belonging to ${req.params.UserId} not found`) }
+  // validity checking that either cart was found
+  if(foundCart){ res.send(JSON.stringify(foundCart.items)); return }
+  else { res.send(`Cart belonging to ${req.params.UserId} not found`) }
 })
 
 //empty users cart
@@ -244,6 +251,7 @@ router.post('/cart/:CartId/cartItem/:CartItemId', jsonParser, async(req, res) =>
     res.send(`${updatedCart.items}`)
 })
 
+// removes an item from a cart given the cart id and the item id
 router.delete('/cart/:CartId/cartItem/:CartItemId', async(req, res) => {
     //checking if cart and item to be deleted exist
     let foundCart = await CartModel.findById(req.params.CartId).populate('items')
