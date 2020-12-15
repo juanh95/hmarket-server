@@ -27,3 +27,9 @@ exports.lastName = {
     },
     data : JSON.stringify({"gender":"0","region":"us","records":50})
 }
+
+exports.accessTokenSecret = "tokenSecret"
+
+exports.secret = 'itIsASecret'
+
+exports.dbCred = 'admin:admin1234'
