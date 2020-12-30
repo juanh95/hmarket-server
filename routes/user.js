@@ -10,6 +10,7 @@ const UserModel = require('../models/User')
 const CartModel = require('../models/Cart')
 
 const config = require('../config')
+const { decode } = require('punycode')
 
 /*
   TODO:
@@ -51,14 +52,25 @@ user.post('/user/login', async(req, res) => {
 
   //no access token detected so it will issue one
   if(!req.session.accessToken){
-    const accessToken = jwt.sign(JSON.stringify(foundUser._id), config.accessTokenSecret)
+    let sessionData = {
+      uId: foundUser._id,
+      cId: foundUser.cart._id
+    }
+    const accessToken = jwt.sign(JSON.stringify(sessionData), config.accessTokenSecret)    
+    // res.cookie('token', accessToken, {httpOnly: true})
     req.session.accessToken = accessToken
-    res.send({jwt: accessToken, userId: foundUser._id, cartId: foundUser.cart._id})
+    
+    res.send({userId: foundUser._id, cartId: foundUser.cart._id})
     return
   }
 
   let decoded = await jwt.verify(req.session.accessToken, config.accessTokenSecret)
   if(decoded){ res.send(decoded) }
+})
+
+user.post('/user/verify/:tkn', async(req, res) => {
+  let decoded = await jwt.verify(req.params.tkn, config.accessTokenSecret)
+  res.send(decoded)
 })
 
 //returns user given an id 
