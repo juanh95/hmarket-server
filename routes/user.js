@@ -10,7 +10,6 @@ const UserModel = require('../models/User')
 const CartModel = require('../models/Cart')
 
 const config = require('../config')
-const { decode } = require('punycode')
 
 /*
   TODO:
@@ -57,7 +56,7 @@ user.post('/user/login', async(req, res) => {
       cId: foundUser.cart._id
     }
     const accessToken = jwt.sign(JSON.stringify(sessionData), config.accessTokenSecret)    
-    // res.cookie('token', accessToken, {httpOnly: true})
+    
     req.session.accessToken = accessToken
     
     res.send({userId: foundUser._id, cartId: foundUser.cart._id})
