@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const config = require('./config')
+const config = require('../config')
 const url = `mongodb+srv://${config.dbCred}@namazon0.9tlsu.mongodb.net/namazondb?retryWrites=true&w=majority`
 
 const express = require('express')
