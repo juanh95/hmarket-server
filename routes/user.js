@@ -9,7 +9,7 @@ const user = express.Router()
 const UserModel = require('../models/User')
 const CartModel = require('../models/Cart')
 
-const config = require('../config')
+const config = require(__dirname + "../config.js")
 
 /*
   TODO:
